@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+	<!-- http://stackoverflow.com/questions/39335144/org-dom4j-documentfactory-cannot-be-cast-to-org-dom4j-documentfactory -->
+	<deployment>
+		<exclusions>
+			<module name="org.dom4j" />
+		</exclusions>
+	</deployment>
+</jboss-deployment-structure>
