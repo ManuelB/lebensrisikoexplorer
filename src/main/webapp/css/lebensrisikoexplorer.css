@@ -7,18 +7,54 @@ html, body {
 }
 
 #map {
-	height: 90%;
+	height: 85%;
+	z-index: 1;
+    position: relative;
 }
 
 #timeline {
-	height: 10%;
+	height: 15%;
 	box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.12), 0px 2px 2px 0px
 		rgba(0, 0, 0, 0.24);
 	transition: box-shadow 0.2s ease;
+	z-index: 10;
+    position: relative;
 }
 
 #timeline:hover {
 	z-index: 2;
 	box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.12), 0px 8px 8px 0px
 		rgba(0, 0, 0, 0.24);
+}
+
+/* Chart Styling */
+.background.bar {
+  fill: #ccc;
+}
+
+.foreground.bar {
+  fill: steelblue;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.brush rect.extent {
+  fill: steelblue;
+  fill-opacity: .125;
+}
+
+.brush .resize path {
+  fill: #eee;
+  stroke: #666;
+}
+.chart rect {
+  fill: steelblue;
 }
