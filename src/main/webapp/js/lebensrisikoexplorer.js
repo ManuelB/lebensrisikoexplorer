@@ -77,7 +77,7 @@ Lebensrisikoexplorer.prototype.addRegionLayer = function(layers) {
 			});
 
 	this.wfsRegionVectorLayer = new ol.layer.Vector({
-		visible : true,
+		visible : false,
 		source : this.wfsRegionVectorSource,
 		style : new ol.style.Style({
 			stroke : new ol.style.Stroke({
@@ -151,7 +151,7 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 								left : 10
 							}, x, y = d3.scale.linear().range([ 100, 0 ]), id = barChart.id++, axis = d3.svg
 									.axis().orient("bottom"), brush = d3.svg
-									.brush(), brushDirty, dimension, group, round;
+									.brush(), brushDirty, dimension, group, round, riskQuantil;
 
 							function chart(div) {
 								var width = x.range()[1], height = y.range()[0];
@@ -186,6 +186,23 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 																		+ ","
 																		+ margin.top
 																		+ ")");
+												
+												var bar = g.selectAll(".bar")
+												    .data(group.all())
+												    .enter()
+												    	.append("g")
+												        .attr("transform", function(d, i) {
+												        	var normalizeHeight = y(d.value);
+												        	return "translate(" + x(d.key) + ", "+normalizeHeight+")";
+												        });
+	
+												bar.append("rect")
+												    .attr("width", function (d, i) { return i != 0 ? x(d.key)/i : x(d.key); } )
+												    .attr("height",  function (d,i) {
+												    	return height-y(d.value);
+												    }).attr("fill", function (d,i) {
+												    	return color(riskQuantil[i]);
+												    });
 
 												g.append("clipPath").attr("id",
 														"clip-" + id).append(
@@ -193,27 +210,27 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 														width).attr("height",
 														height);
 
-												g
-														.selectAll(".bar")
-														.data(
-																[ "background",
-																		"foreground" ])
-														.enter()
-														.append("path")
-														.attr(
-																"class",
-																function(d) {
-																	return d
-																			+ " bar";
-																}).datum(
-																group.all());
+												//g
+												//		.selectAll(".bar")
+												//		.data(
+												//				[ "background",
+												//						"foreground" ])
+												//		.enter()
+												//		.append("path")
+												//		.attr(
+												//				"class",
+												//				function(d) {
+												//					return d
+												//							+ " bar";
+												//				}).datum(
+												//				group.all());
 
-												g.selectAll(".foreground.bar")
-														.attr(
-																"clip-path",
-																"url(#clip-"
-																		+ id
-																		+ ")");
+												//g.selectAll(".foreground.bar")
+												//		.attr(
+												//				"clip-path",
+												//				"url(#clip-"
+												//						+ id
+												//						+ ")");
 
 												g.append("g").attr("class",
 														"axis").attr(
@@ -265,30 +282,21 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 												}
 											}
 											
-											g.selectAll(".bar").attr("d",
-													barPath);
+											//g.selectAll(".bar").attr("d",
+											//		barPath);
 											
-											var barWidth = 20;
-											var bar = g.selectAll(".bar")
-											    //.data()
-											    .enter()
-											    	.append("g")
-											        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ", 0)"; });
-
-											bar.append("rect")
-											    .attr("width", barWidth-1 )
-											    .attr("height",  function (d,i) { return d; });
+											
 										});
 
-								function barPath(groups) {
-									var path = [], i = -1, n = groups.length, d;
-									while (++i < n) {
-										d = groups[i];
-										path.push("M", x(d.key), ",", height,
-												"V", y(d.value), "h9V", height);
-									}
-									return path.join("");
-								}
+								//function barPath(groups) {
+								//	var path = [], i = -1, n = groups.length, d;
+								//	while (++i < n) {
+								//		d = groups[i];
+								//		path.push("M", x(d.key), ",", height,
+								//				"V", y(d.value), "h9V", height);
+								//	}
+								//	return path.join("");
+								//}
 
 								function resizePath(d) {
 									var e = +(d == "e"), x = e ? 1 : -1, y = height / 3;
@@ -401,6 +409,13 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 								group = _;
 								return chart;
 							};
+							
+							chart.riskQuantil = function(_) {
+								if (!arguments.length)
+									return riskQuantil;
+								riskQuantil = _;
+								return chart;
+							};
 
 							chart.round = function(_) {
 								if (!arguments.length)
@@ -427,10 +442,32 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 									return d.value;
 								});
 
+						var allRisks = risk.all().map(function (d) {
+							return d.value;
+						});
+						
+						var xAllRisks = d3.scale.linear()
+						    .domain([d3.min(allRisks), d3.max(allRisks)]);
+	
+						var ticks = xAllRisks.ticks(10);
+						
+						// Generate a histogram using ten uniformly-spaced bins.
+						// in riskQuantil the bin for the risk will be saved
+						var riskQuantil = allRisks.map(function (risk) {
+							return ticks.reduce(function (sum, value) {
+								if(risk > value) {
+									return sum+1;
+								} else {
+									return sum;
+								}
+							}, 0);
+						});
+						
 						var charts = [ barChart()
 								.dimension(date)
 								.group(dates)
 								.round(d3.time.day.round)
+								.riskQuantil(riskQuantil)
 								.x(
 										d3.time
 												.scale()
