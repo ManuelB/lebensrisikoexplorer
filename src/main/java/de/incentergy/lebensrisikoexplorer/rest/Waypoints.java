@@ -30,7 +30,7 @@ public class Waypoints {
 		try {
 		List<?> rows = em
 				.createNativeQuery(
-						"select COUNT(*),  date\\:\\:timestamp\\:\\:date, SUM(a.wert) FROM waypoint w LEFT JOIN attributes a ON (w.gemeinde = a.gemeinde AND a.name = 'Unfälle mit Personenschaden je 1000 Einwohner in 2015') WHERE EXTRACT(year FROM date) = 2015 GROUP BY date\\:\\:timestamp\\:\\:date ORDER BY date\\:\\:timestamp\\:\\:date;")
+						"select sum(\"distanceToPointBefore\") as distance,date\\:\\:timestamp\\:\\:date as date, SUM(COALESCE(a.wert, cr.value))/COUNT(*) as wert FROM waypoint w LEFT JOIN attributes a ON (w.gemeinde = a.gemeinde AND a.name = 'Unfälle mit Personenschaden je 1000 Einwohner in 2015') LEFT JOIN country_risk cr ON (isoCode = country) WHERE EXTRACT(year FROM date) = 2015 GROUP BY date\\:\\:timestamp\\:\\:date ORDER BY date\\:\\:timestamp\\:\\:date;")
 				.getResultList();
 			return Response.ok().entity(rows).type(MediaType.APPLICATION_JSON).build();
 		} catch(Exception e) {

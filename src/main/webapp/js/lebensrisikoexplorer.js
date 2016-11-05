@@ -79,12 +79,14 @@ Lebensrisikoexplorer.prototype.addRegionLayer = function(layers) {
 	this.wfsRegionVectorLayer = new ol.layer.Vector({
 		visible : false,
 		source : this.wfsRegionVectorSource,
-		style : new ol.style.Style({
-			stroke : new ol.style.Stroke({
-				color : '#bada55',
-				width : 1
-			})
-		})
+		style : function (feature) {
+			return new ol.style.Style({
+				stroke : new ol.style.Stroke({
+					color : '#bada55',
+					width : 1
+				})
+			});
+		}
 	});
 	layers.push(this.wfsRegionVectorLayer);
 };
@@ -105,18 +107,36 @@ Lebensrisikoexplorer.prototype.addWaypointLayer = function(layers) {
 	this.wfsVectorLayer = new ol.layer.Vector({
 		visible : true,
 		source : this.wfsVectorSource,
-		style : new ol.style.Style({
-			image : new ol.style.Circle({
-				radius : 5,
-				fill : new ol.style.Fill({
-					color : '#f33'
-				}),
-				stroke : new ol.style.Stroke({
-					color : '#bada55',
-					width : 1
+		style : function (feature) {
+			var activity = feature.getProperties().activity;
+			var color = "#00B8D4";
+			if(activity == "still") {
+				color = "#00C853";
+			} else if(activity == "onFoot") {
+				color = "#FFB74D";
+			} else if(activity == "onBicycle") {
+				color = "#3E2723";
+			} else if(activity == "inVehicle") {
+				color = "#90A4AE";
+			} else if(activity == "tilting") {
+				color = "#B2DFDB";
+			} else if(activity == "exitingVehicle") {
+				color = "#000000";
+			}
+			
+			return new ol.style.Style({
+				image : new ol.style.Circle({
+					radius : 5,
+					fill : new ol.style.Fill({
+						color : color
+					}),
+					stroke : new ol.style.Stroke({
+						color : '#bada55',
+						width : 1
+					})
 				})
-			})
-		})
+			});
+		}
 	});
 	layers.push(this.wfsVectorLayer);
 };
@@ -149,7 +169,7 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 								right : 10,
 								bottom : 20,
 								left : 10
-							}, x, y = d3.scale.linear().range([ 100, 0 ]), id = barChart.id++, axis = d3.svg
+							}, x, y = d3.scale.linear().range([ 100, 1 ]), id = barChart.id++, axis = d3.svg
 									.axis().orient("bottom"), brush = d3.svg
 									.brush(), brushDirty, dimension, group, round, riskQuantil;
 
@@ -192,6 +212,7 @@ Lebensrisikoexplorer.prototype.initTimeline = function() {
 												    .enter()
 												    	.append("g")
 												        .attr("transform", function(d, i) {
+												        	//  Math.log(d.value)*d.value
 												        	var normalizeHeight = y(d.value);
 												        	return "translate(" + x(d.key) + ", "+normalizeHeight+")";
 												        });
