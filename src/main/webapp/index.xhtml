@@ -12,6 +12,22 @@
 	<script src="webjars/d3js/3.5.17/d3.min.js"></script>
 </h:head>
 <body>
+	<div class="dialog" onclick="this.style.display='none;'">
+		<h2>Versicherungsrelevante Ereignisse</h2>
+		<ol>
+			<li>01.02.2015 Fahrsicherheitstrainig beim ADAC</li>
+			<li>Mehrer Aufenthalte im Gesundarium</li>
+			<li>Mitte September Kreuzfahrt auf der Ostsee</li>
+		</ol>
+		<h2>Gefahrene Kilometer pro Verkehrsmittel (61.498 km Insgesamt)</h2>
+		<div class="bar-chart">
+		  <div style="width: 28em;	background-color: #00B8D4;" class="inline-bar">27.674 km Mit der Bahn</div>
+		  <div style="width: 17.26em; background-color: #90A4AE;" class="inline-bar">17.065 km Mit der Auto</div>
+		  <div style="width: 15.556em; background-color: #F50057;" class="inline-bar">15.374 km mit dem Flugzeug</div>
+		  <div style="width: 1.244em; background-color: #FFB74D;" class="inline-bar outline-label"></div>1.229 km zu Fuß <br />
+		  <div style="width: 0.15556em; background-color: #3E2723; vertical-align: middle; display: inline-block;" class="inline-bar outline-label"></div>153 km mit dem Fahrrad<br />
+		</div>
+	</div>
 	<div id="timeline">
 		<div id="charts">
 			<div id="date-chart" class="chart">
